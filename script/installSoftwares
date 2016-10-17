@@ -1,0 +1,121 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+then
+    echo "Please run as root"
+    exit 1
+fi
+
+echo "Update and upgrade"
+#apt-get update -qq
+#apt-get upgrade
+
+echo "Install basic tools"
+apt-get install -qq -y gnome-do \
+    openssh-server \
+    p7zip \
+    gedit \
+    openvpn \
+    flashplugin-installer \
+    vlc \
+    gnupg \
+    meld \
+    curl \
+    wget \
+    terminator \
+    filezilla \
+    chromium-browser \
+    htop \
+    screen \
+    irssi \
+    isomaster \
+    genisoimage \
+    gcalctool \
+    ncurses-base \
+    ncurses-bin
+
+echo "Install AVR tools"
+apt-get install -qq -y avr-libc \
+    gcc-avr \
+    avrdude \
+    arduino \
+    arduino-mk
+
+echo "Install GIT tools"
+apt-get install -qq -y git \
+    git-core \
+    gitg \
+    gitk \
+    git-flow
+
+echo "Install serial tools"
+apt-get install -qq -y putty \
+    minicom \
+    picocom
+
+echo "Install Website tools"
+apt-get install -qq -y mysql-server \
+    php \
+    apache2 \
+    phpmyadmin
+
+echo "Install editor"
+apt-get install -qq -y vim \
+    kdevelop \
+    eclipse
+
+echo "Install ARM tools"
+apt-get install -qq -y lpc21isp \
+    gcc-arm-linux-gnueabi \
+    gcc-arm-none-eabi \
+    gcc-arm-linux-gnueabihf \
+    gcc-arm-linux-androideabi
+
+echo "Install c tools"
+apt-get install -qq -y flex \
+    bison \
+    build-essential \
+    autotools-dev \
+    automake \
+    cmake \
+    libcunit1-dev
+
+echo "Install Latex tools"
+apt-get install -qq -y texlive-full \
+    texinfo \
+    graphviz \
+    doxygen \
+    lyx
+
+echo "Install network tools"
+apt-get install -qq -y traceroute \
+    nmap \
+    wireshark \
+
+echo "Install NodeJS tools"
+apt-get install -qq -y npm \
+    nodejs-legacy
+
+echo "Install Python tools"
+apt-get install -qq -y python \
+    python-serial \
+    python3 \
+    python3-serial \
+    python-matplotlib \
+    python3-matplotlib \
+    python-numpy \
+    python3-numpy
+
+echo "Install electronics tools"
+apt-get install -qq -y pulseview \
+    sigrok \
+    eagle \
+
+echo "Install ruby tools"
+apt-get install -qq -y gem \
+    ruby
+
+echo "Add ability to install i386"
+dpkg --add-architecture i386
+apt-get update -qq
+apt-get install -qq libc6:i386 libncurses5:i386 libstdc++6:i386
