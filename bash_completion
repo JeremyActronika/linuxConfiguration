@@ -1,0 +1,141 @@
+#!/bin/bash
+
+## Export variable
+
+export EDITOR=vim
+
+## Coloration pour les dépots svn et git :
+
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (git::\1)/'
+}
+
+parse_svn_branch() {
+    parse_svn_url | sed -e 's#^'"$(parse_svn_repository_root)"'##g' | awk -F / '{print " (svn::"$1 "/" $2 ")"}'
+}
+
+parse_svn_url() {
+    svn info 2>/dev/null | grep -e '^URL*' | sed -e 's#^URL: *\(.*\)#\1#g '
+}
+
+parse_svn_repository_root() {
+    svn info 2>/dev/null | grep -e '^Repository Root:*' | sed -e 's#^Repository Root: *\(.*\)#\1\/#g '
+}
+
+## Fonctions
+
+extract () {
+  if [ -f "$1" ] ; then
+    case "$1" in
+      *.tar.bz2)   tar xvjf "$1"    ;;
+      *.tar.gz)    tar xvzf "$1"    ;;
+      *.tar.xz)    tar xvJf "$1"    ;;
+      *.bz2)       bunzip2 "$1"     ;;
+      *.rar)       unrar x "$1"     ;;
+      *.gz)        gunzip "$1"      ;;
+      *.tar)       tar xvf "$1"     ;;
+      *.tbz2)      tar xvjf "$1"    ;;
+      *.tgz)       tar xvzf "$1"    ;;
+      *.zip)       unzip "$1"       ;;
+      *.Z)         uncompress "$1"  ;;
+      *.7z)        7z x "$1"        ;;
+      *.xz)        unxz "$1"        ;;
+      *.exe)       cabextract "$1"  ;;
+      *)           echo "'$1': unrecognized file compression" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+function mcd() {
+  mkdir -p "$1" && cd "$1";
+}
+
+function please(){
+    if [[ $# == 0 ]]; then
+        sudo $(history -p '!!')
+    else
+        sudo "$@"
+    fi
+}
+
+function ban() {
+    if [ "`id -u`" == "0" ] ; then
+        iptables -A INPUT -s $1 -j DROP
+    else
+        sudo iptables -A INPUT -s $1 -j DROP
+    fi
+}
+
+function cd () { 
+  builtin cd "$@" && ls;
+}
+
+function download()
+{
+	old=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 2 | cut -d ' ' -f 1`
+	while [ true ]
+	do
+		sleep 1
+		new=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 2 | cut -d ' ' -f 1`
+		deb=`expr $new - $old`
+		deb=`expr $deb / 1000`
+		echo "Download : $deb ko/s"
+		old=$new
+	done
+}
+
+function upload()
+{
+	old=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 3 | cut -d ' ' -f 1`
+        while [ true ]
+        do
+                sleep 1
+                new=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 3 | cut -d ' ' -f 1`
+                deb=`expr $new - $old`
+                deb=`expr $deb / 1000`
+                echo "Upload : $deb ko/s"
+                old=$new
+        done
+}
+
+function flow()
+{
+	old_download=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 2 | cut -d ' ' -f 1`
+	old_upload=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 3 | cut -d ' ' -f 1`
+	while [ true ]
+	do
+		sleep 1
+		new_download=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 2 | cut -d ' ' -f 1`
+		new_upload=`ifconfig  | grep Octets | head -n 1 | cut -d ':' -f 3 | cut -d ' ' -f 1`
+		download=`expr $new_download - $old_download`
+		upload=`expr $new_upload - $old_upload`
+		download=`expr $download / 1000`
+		upload=`expr $upload / 1000`
+		echo "Download : $download ko/s Upload : $upload ko/s"
+		old_download=$new_download
+		old_upload=$new_upload
+	done
+}
+
+function serialListen()
+{
+	mkdir -p ${HOME}/import
+	if [ -z $1 ]
+	then
+		echo "$0 [filename] [serialPort]"
+		echo "Filename is missing"
+		return 1
+	fi
+	if [ -z $2 ]
+	then
+		echo "$0 [filename] [serialPort]"
+		echo "Serial port is missing"
+		return 1
+	fi
+	(stty raw; cat > "${1}") < "$2"
+}
+
+PS1='\[\033[01;32m\]\u\[\033[01;34m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[31m\]$(parse_git_branch)\[\033[00m\]\$ '
+unset color_prompt force_color_prompt
