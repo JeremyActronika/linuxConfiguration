@@ -1,0 +1,12 @@
+#Host template
+#   User user
+#   HostName www.url.fr
+#   IdentityFile ~/.ssh/id_rsa_needed
+#   IdentitiesOnly yes
+#   Port 22
+#   StrictHostKeyChecking no
+#   UserKnownHostsFile=/dev/null
+#   ProxyCommand ssh configurationName nc %h %p
+#   ForwardX11 yes
+#   LocalForward 9906 127.0.0.1:3306
+#   DynamicForward 12345
