@@ -1,0 +1,60 @@
+#!/bin/bash
+#@TODO : Add regex to check email
+
+function displayHelp()
+{
+    echo "Usage $0 [name] [email] [optional : GPG sign key]"
+}
+
+# Check name
+if [ -z "$1" ]
+then
+    displayHelp $0
+    exit 1
+fi
+
+# Check e-mail
+if [ -z "$2" ]
+then
+    displayHelp $0
+    exit 1
+fi
+
+# Save old gitconfig
+if [ -f $HOME/.gitconfig ]
+then
+    cp $HOME/.gitconfig $HOME/.gitconfig.old
+fi
+
+# Generate new gitconfig
+ 
+## USER CONF
+echo -e "[user]" > $HOME/.gitconfig
+echo -e "\temail = $2" >> $HOME/.gitconfig
+echo -e "\tname = $1" >> $HOME/.gitconfig
+if [ ! -z "$3" ]
+then
+    echo -e "\tsigningkey = $3" >> $HOME/.gitconfig
+fi
+
+## COLOR CONF
+echo -e "[color]" >> $HOME/.gitconfig
+echo -e "\tui = true" >> $HOME/.gitconfig
+
+## ALIAS CONF
+echo -e "[alias]" >> $HOME/.gitconfig
+echo -e "\tunadd = reset HEAD" >> $HOME/.gitconfig
+echo -e "\tmylog = log --pretty=format:'%Cred%h%Creset - %G? -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --graph" >> $HOME/.gitconfig
+echo -e "\tstat = shortlog -sne" >> $HOME/.gitconfig
+
+## CORE CONF
+echo -e "[color]" >> $HOME/.gitconfig
+echo -e "\teditor = vim" >> $HOME/.gitconfig
+echo -e "\tautocrlf = input" >> $HOME/.gitconfig
+ 
+## COMMIT CONF
+echo -e "[commit]" >> $HOME/.gitconfig
+if [ ! -z "$3" ]
+then
+    echo -e "\tgpgsign = true" >> $HOME/.gitconfig
+fi
