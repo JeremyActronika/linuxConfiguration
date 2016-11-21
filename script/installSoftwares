@@ -39,7 +39,10 @@ apt-get install -qq -y gnome-do \
     virtualbox-guest-utils \
     virtualbox-guest-x11 \
     hamster-applet \
-    hamster-indicator
+    hamster-indicator \
+    poedit \
+    synergy \
+    sshfs
 
 echo "Install graphic tools"
 apt-get install -qq -y inkscape \
@@ -107,6 +110,7 @@ echo "Install network tools"
 apt-get install -qq -y traceroute \
     nmap \
     wireshark \
+    whois
 
 echo "Install NodeJS tools"
 apt-get install -qq -y npm \
@@ -120,7 +124,9 @@ apt-get install -qq -y python \
     python-matplotlib \
     python3-matplotlib \
     python-numpy \
-    python3-numpy
+    python3-numpy \
+    python-pip \
+    python3-pip
 
 echo "Install electronics tools"
 apt-get install -qq -y pulseview \
