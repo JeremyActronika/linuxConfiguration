@@ -6,6 +6,9 @@ alias scpAnonymous="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking
 ## Alias de connexion sur build et dev, etc ...
 alias 'ssh-agent'="exec ssh-agent bash"
 
+alias 'gitCleanRemote'="gitClean; git remote prune origin"
+alias 'gitClean'="git reflog expire --expire-unreachable=now --all;git gc --prune=now"
+
 ## Autre alias
 alias ":x"="exit"
 alias ":q!"="exit"
