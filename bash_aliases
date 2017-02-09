@@ -12,3 +12,6 @@ alias 'gitClean'="git reflog expire --expire-unreachable=now --all;git gc --prun
 ## Autre alias
 alias ":x"="exit"
 alias ":q!"="exit"
+
+## fun ##
+alias 'minikeums'='minicom'
