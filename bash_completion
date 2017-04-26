@@ -142,5 +142,33 @@ function gitPgpStop()
 	git config --local commit.gpgsign false
 }
 
+# Transfer file using transfer.io
+transfer()
+{
+	tmpFile=$(mktemp -t transferXXX)
+	curl --progress-bar --upload-file $1 https://transfer.sh/$(basename $1) >> $tmpFile;
+	cat $tmpFile
+	echo ""
+	rm -f $tmpFile
+}
+
+transferGpg()
+{
+	tmpFile=$(mktemp -t transferXXX)
+	tmpContent=$(mktemp -t transferGpgXXX)
+	cat $1 | gpg -ac -o- > $tmpContent
+	curl --progress-bar --upload-file $tmpContent https://transfer.sh/$(basename $1) >> $tmpFile;
+	cat $tmpFile
+	echo ""
+        rm -f $tmpContent $tmpFile
+}
+
+downloadGpg()
+{
+	filename="$(echo "$1" | cut -d '/' -f 5)"
+	echo $filename
+	curl $1 | gpg -o- > $filename
+}
+
 PS1='\[\033[01;32m\]\u\[\033[01;34m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[31m\]$(parse_git_branch)\[\033[00m\]\$ '
 unset color_prompt force_color_prompt
