@@ -14,3 +14,11 @@ How to install
 --------------
 
 Execute script 'install.sh' in the main folder of application
+
+Other
+-----
+
+install `bat` and `fd` :
+* https://github.com/sharkdp/bat
+* https://github.com/nvbn/thefuck
+

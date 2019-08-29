@@ -15,3 +15,7 @@ alias ":q!"="exit"
 
 ## fun ##
 alias 'minikeums'='minicom'
+
+alias 'xhost_add_root'='xhost +si:localuser:root'
+
+alias 'killswap'='sudo swapoff -a && sudo swapon -a'

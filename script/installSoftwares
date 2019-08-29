@@ -30,7 +30,6 @@ apt-get install -qq -y gnome-do \
     irssi \
     isomaster \
     genisoimage \
-    gcalctool \
     ncurses-base \
     ncurses-bin \
     virtualbox \
@@ -38,8 +37,6 @@ apt-get install -qq -y gnome-do \
     virtualbox-guest-source \
     virtualbox-guest-utils \
     virtualbox-guest-x11 \
-    hamster-applet \
-    hamster-indicator \
     poedit \
     synergy \
     sshfs

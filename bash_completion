@@ -4,6 +4,9 @@
 
 export EDITOR=vim
 
+MINICOM='-c on'
+export MINICOM
+
 ## Coloration pour les dépots svn et git :
 
 parse_git_branch() {
@@ -46,18 +49,6 @@ extract () {
   else
     echo "'$1' is not a valid file"
   fi
-}
-
-function mcd() {
-  mkdir -p "$1" && cd "$1";
-}
-
-function please(){
-    if [[ $# == 0 ]]; then
-        sudo $(history -p '!!')
-    else
-        sudo "$@"
-    fi
 }
 
 function ban() {
@@ -169,6 +160,143 @@ downloadGpg()
 	echo $filename
 	curl $1 | gpg -o- > $filename
 }
+
+function nrf52_gdb_server()
+{
+	device=nRF52832_xxAA
+	port=2331
+
+	JLinkGDBServer \
+		-device $device \
+		-port $port \
+		-strict \
+		-if swd \
+		-localhostonly \
+		-halt \
+		-vd
+}
+
+function convertVideoToGif()
+{
+	FPS=15
+	WIDTH=1920
+
+	if [ $# -ne 2 ]
+	then
+		echo "Usage $0 [path to video] [gif name]"
+		return
+	else
+		echo "Convert ${1} to in ${2}.gif"
+	fi
+
+	if [ ! -e ${1} ]
+	then
+		echo "Source file ${1} doesn't exist"
+		return
+	fi
+
+	if [ -e ${2} ]
+	then
+		echo "Output file ${2}.gif already exists"
+		return
+	fi
+
+	ffmpeg -i ${1} -vf fps=$FPS,scale=$WIDTH:-1:flags=lanczos,palettegen tmp_palette.png
+	ffmpeg -i ${1} -i tmp_palette.png -loop 0 -filter_complex "fps=$FPS,scale=$WIDTH:-1:flags=lanczos[x];[x][1:v]paletteuse" ${2}.gif
+	rm tmp_palette.png
+}
+
+function generateHeader()
+{
+    if [ $# -ne 1 ]
+    then
+        echo "Usage ${0} [path to file]"
+        return
+    fi
+
+    if [ -d "${1}" ]
+    then
+        echo "${1} already exist and it's a folder :'("
+        return
+    fi
+
+    if [ -a "${1}" ]
+    then
+        echo "File ${1} already exist"
+        return
+    fi
+
+    DIRNAME="$(dirname ${1})"
+    if [ ! -d "${DIRNAME}" ]
+    then
+        mkdir -p ${DIRNAME}
+    fi
+
+    touch "${1}"
+
+    NAME="Jérémy Cheynet"
+    EMAIL="jeremy.cheynet@actronika.com"
+    BASENAME="$(basename ${1})"
+    HEADER_NAME="$(echo ${BASENAME} | cut -d '.' -f 1 | tr a-z A-Z)_H"
+    COMPANY="Actronika SAS"
+    COPYRIGHT="Copyright (C) $(date +"%Y") ${COMPANY}"
+
+    case "${1}" in
+            *.cpp|*.c)
+                echo "/*
+ * Author: ........ ${NAME} <${EMAIL}>
+ * File: .......... ${BASENAME}
+ * ${COPYRIGHT}
+ */
+#include \"${BASENAME%.*}.h\"
+ " > ${1}
+                ;;
+            *.hpp|*.h)
+                echo "/*
+ * Author: ........ ${NAME} <${EMAIL}>
+ * File: .......... ${BASENAME}
+ * ${COPYRIGHT}
+ */
+#ifndef ${HEADER_NAME}
+#define ${HEADER_NAME}
+
+#endif // ${HEADER_NAME}
+ " > ${1}
+                ;;
+            *.py)
+                echo "#!/usr/bin/env python3
+'''
+File name: ${BASENAME}
+Author: ${NAME} <${EMAIL}>
+Copyright: ${COPYRIGHT}
+'''" > ${1}
+                chmod +x ${1}
+                ;;
+            *.sh)
+                echo "#!/bin/bash
+# Title: ${BASENAME}
+# Author: ${NAME} <${EMAIL}>
+# Copyright: ${COPYRIGHT}
+# ============================================================================ #" > ${1}
+                chmod +x ${1}
+                ;;
+            *)
+                echo "'$1': unrecognized file type"
+                ;;
+    esac
+
+}
+
+function get_resolution()
+{
+	if [ $# -ne 1 ]
+	then
+		echo "Usage $0 [Path to vidéo]"
+	fi
+	ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$1"
+}
+
+#export PATH=$PATH:/opt/jdk-10.0.1/bin
 
 PS1='\[\033[01;32m\]\u\[\033[01;34m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[31m\]$(parse_git_branch)\[\033[00m\]\$ '
 unset color_prompt force_color_prompt

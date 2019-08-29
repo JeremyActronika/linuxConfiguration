@@ -1,0 +1,11 @@
+#!/bin/bash
+
+path=`pwd`
+
+for repo in `find . -name "\.git"`
+do
+	cd ${path}/${repo}/..
+	echo "Fetch ${repo}"
+	git fetch
+	cd ${path} > /dev/null
+done
