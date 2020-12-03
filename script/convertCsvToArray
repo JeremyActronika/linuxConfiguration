@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+'''
+File name: convertCsvToArray
+Author: Jérémy Cheynet <jeremy.cheynet@actronika.com>
+Copyright: Copyright (C) 2019 Actronika SAS
+'''
+import argparse
+import os.path
+
+def add_space(data, size):
+    for _ in range(size):
+        data = data + ' '
+    return data
+
+def trim(data):
+    data = data.strip("\n").strip('\r').strip(' ')
+    data = data + ','
+    return data
+
+parser = argparse.ArgumentParser(description='Convert csv one line to c array')
+parser.add_argument('file', type=argparse.FileType('r'), help='Path to csv file')
+parser.add_argument('--offset', '-o', type=int, help='Offset of the first line', default=0, required=False)
+parser.add_argument('--space', '-s',  type=int, help='Number of space for other lines', default=4, required=False)
+parser.add_argument('--length', '-l', type=int, help='Number of char in one line', default=80, required=False)
+parser.add_argument('--separator', '-S', type=str, help='Type of csv separator', default='\n', required=False)
+args = parser.parse_args()
+
+print('Open file : ...........', args.file.name)
+print('First line offset : ...', args.offset)
+print('Indent space : ........', args.space)
+print('Line size : ...........', args.length)
+if args.separator == '\n':
+    print('Separator : ........... \'\\n\'')
+else:
+    print('Separator : ...........', args.separator)
+
+basename, ext = os.path.splitext(args.file.name)
+
+return_fd = open(basename + '.txt', 'w')
+
+data = '' #add_space('', args.offset)
+counter_line_size = args.offset
+
+if args.separator == '\n':
+    next_value = trim(args.file.readline())
+
+    while next_value != ',':
+        if counter_line_size + len(next_value) + 1 <= args.length:
+            data = data + next_value + ' '
+            counter_line_size = counter_line_size + len(next_value) + 1
+        else:
+            data = data.rstrip()
+            data = data + '\n'
+            data = add_space(data, args.space)
+            data = data + next_value + ' '
+            counter_line_size = args.space + len(next_value) + 1
+        next_value = trim(args.file.readline())
+else:
+    readed = args.file.read()
+    splitted = readed.split(args.separator)
+    for value in splitted:
+        if counter_line_size + len(value) + 2 <= args.length:
+            data = data + value + ', '
+            counter_line_size = counter_line_size + len(value) + 2
+        else:
+            data = data.rstrip()
+            data = data + '\n'
+            data = add_space(data, args.space)
+            data = data + value + ', '
+            counter_line_size = args.space + len(value) + 2
+
+data = data.rstrip().rstrip(',')
+return_fd.write(data)
+args.file.close()
+return_fd.close()

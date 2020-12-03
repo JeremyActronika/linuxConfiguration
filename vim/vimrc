@@ -1,0 +1,35 @@
+" Vim configuration
+
+" Disable compatibility with vi
+set nocompatible
+
+" Display number of line
+set number
+
+" Enable syntax color
+syntax on
+
+" Indentation intelligente
+set smartindent
+
+" Conserve l'indentation sur une nouvelle ligne
+set autoindent
+
+" Affiche la position du curseur
+set ruler
+
+" Ajouter les parenthèses automatiquement
+inoremap ( ()<left>
+
+" Afficher list chars
+set listchars=nbsp:¤,tab:>-,trail:¤,extends:>,precedes:<,eol:¶,trail:·
+set list
+
+" Afficher la limite des 80 caractères
+highlight OverLength ctermbg=red ctermfg=white guibg=#592929
+match OverLength /\%81v.*/
+
+" Initialisation de pathogen
+" git clone https://github.com/tpope/vim-pathogen.git pathogen
+call pathogen#infect()
+call pathogen#helptags()

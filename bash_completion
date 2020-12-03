@@ -249,7 +249,7 @@ function generateHeader()
  * ${COPYRIGHT}
  */
 #include \"${BASENAME%.*}.h\"
- " > ${1}
+" > ${1}
                 ;;
             *.hpp|*.h)
                 echo "/*
@@ -260,8 +260,7 @@ function generateHeader()
 #ifndef ${HEADER_NAME}
 #define ${HEADER_NAME}
 
-#endif // ${HEADER_NAME}
- " > ${1}
+#endif // ${HEADER_NAME}" > ${1}
                 ;;
             *.py)
                 echo "#!/usr/bin/env python3
@@ -296,7 +295,107 @@ function get_resolution()
 	ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$1"
 }
 
+function clean_arp_table()
+{
+	start=100
+	stop=200
+
+	if [ $# -ge 1 ]
+	then
+		start=$1
+    	fi
+
+	if [ $# -ge 2 ]
+	then
+		stop=$2
+	fi
+
+	for ip in `arp -n | cut -d ' ' -f 1`
+	do
+		last_ip=`echo ${ip} | cut -d '.' -f 4`
+		if [ -z ${last_ip} ]
+		then
+			if [ ${last_ip} -ge ${start} ]
+			then
+				if [ ${last_ip} -le ${stop} ]
+				then
+					sudo arp -d ${ip}
+				fi
+			fi
+		fi
+	done
+}
+
+function search_mac()
+{
+	start=100
+	stop=200
+	found=0
+	name=""
+	if [ $# -ge 1 ]
+	then
+		format="$1"
+	else
+		echo "Usage $0 [MAC templace] [start IP address] [stop IP address] [name]"
+		return 1
+    	fi
+
+	if [ $# -ge 2 ]
+	then
+		start=$2
+	fi
+	if [ $# -ge 3 ]
+	then
+		stop=$3
+	fi
+	if [ $# -ge 4 ]
+	then
+		name=$4
+	fi
+
+	clean_arp_table ${start} ${stop}
+
+	for ip in $(seq ${start} ${stop})
+	do
+		ping -c 2 -w 1 ${ip} >> /dev/null
+		if [ $(arp -a | grep "192.168.0.${ip}" | grep -c "${format}") == "1" ]
+		then
+			echo "Check IP 192.168.0.${ip} : Is a ${name^^} !!! Oh yeah !!!"
+			found=`expr ${found} + 1`
+		else
+			echo "Check IP 192.168.0.${ip} : not a ${name} :'("
+		fi
+	done
+
+	if [ ${found} -eq 0 ]
+	then
+		echo "Game over"
+	else
+		echo "We found ${found} ${name}(s)"
+	fi
+}
+
+function search_raspi()
+{
+	start=100
+	stop=200
+
+	if [ $# -ge 1 ]
+	then
+		start=$1
+	fi
+
+	if [ $# -ge 2 ]
+	then
+		stop=$2
+	fi
+
+	search_mac "b8:27" ${start} ${stop} "raspi"
+}
+
 #export PATH=$PATH:/opt/jdk-10.0.1/bin
 
 PS1='\[\033[01;32m\]\u\[\033[01;34m\]@\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[31m\]$(parse_git_branch)\[\033[00m\]\$ '
 unset color_prompt force_color_prompt
+
+#. /home/jeremy/.admin/.bin/git/emoji-cli/emoji-cli.zsh
