@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for i in `find . -name ".git"`
+do
+	cd ${i%.*}
+	git gc
+	cd -
+done
